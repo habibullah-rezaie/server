@@ -1,7 +1,8 @@
 import express from "express";
 import login from "../../controllers/auth/login";
 import createToken from "../../controllers/auth/token";
-import passportAuth, {
+import { parseSessionCookie } from "../../middlewares/auth/auth";
+import {
 	authenticateAccessToken,
 	authenticatePasswd,
 	authenticateRefreshToken,
@@ -10,6 +11,12 @@ const router = express.Router();
 
 router.post("/login", authenticatePasswd, login);
 
-router.post("/token", authenticateRefreshToken, createToken);
+router.post(
+	"/token",
+	parseSessionCookie,
+	authenticateRefreshToken,
+	createToken
+);
+
 
 export default router;
