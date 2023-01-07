@@ -1,4 +1,4 @@
-import { Role, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import bcrypt from "bcrypt";
 import {
 	NextFunction as ExNextFn,
@@ -6,10 +6,13 @@ import {
 	Response as ExResponse,
 } from "express";
 import createError, { HttpError } from "http-errors";
-import pssPrt from "passport";
-import refreshTkPassport from "passport";
+import { default as pssPrt, default as refreshTkPassport } from "passport";
 import { Strategy as JWTStrategy } from "passport-jwt";
 import { Strategy as LocalStrategy } from "passport-local";
+import {
+	AccessTkPayload,
+	RefreshTkPayload,
+} from "../../controllers/auth/login";
 import prisma from "./../../../prisma/prisma";
 
 // TODO:
@@ -81,18 +84,18 @@ const accessTokenStrategy = new JWTStrategy(
 		secretOrKey: process.env.JWT_ACCESS_SECRET,
 		algorithms: ["HS256"],
 	},
-	(payload, done) => {
+	(payload: AccessTkPayload, done) => {
 		const error = createError.Unauthorized("Invalid accessToken");
 		error.stack = undefined;
 		if (!payload) {
 			return done(error);
 		}
-		const { email, role } = payload;
+		const { userId, role } = payload;
 
-		if (!email || !role) {
+		if (!userId || !role) {
 			return done(error);
 		}
-		done(null, { email, role });
+		done(null, { id: userId, role });
 	}
 );
 
@@ -119,7 +122,6 @@ const refreshTkAuthStrategy = new JWTStrategy(
 		jwtFromRequest(req) {
 			const refreshTk = req.cookies.refreshToken;
 
-			console.log(refreshTk, process.env.REFRESH_SECRET, "refreshTk");
 			if (!refreshTk) return null;
 
 			return refreshTk;
@@ -127,18 +129,19 @@ const refreshTkAuthStrategy = new JWTStrategy(
 		secretOrKey: process.env.JWT_REFRESH_SECRET,
 		algorithms: ["HS256"],
 	},
-	(payload, done) => {
+	(payload: RefreshTkPayload, done) => {
 		const error = createError.Unauthorized("Invalid accessToken");
 		error.stack = undefined;
 		if (!payload) {
 			return done(error);
 		}
-		const { email, role } = payload;
+		const { userId, role, sid } = payload;
 
-		if (!email || !role) {
+		if (!userId || !role) {
 			return done(error);
 		}
-		done(null, { email, role });
+
+		done(null, { userId, role, sid });
 	}
 );
 
@@ -147,7 +150,6 @@ export function authenticateRefreshToken(
 	res: ExResponse,
 	next: ExNextFn
 ) {
-	console.log(req.cookies.refreshToken);
 	if (!req.cookies.refreshToken) {
 		return res
 			.status(401)
