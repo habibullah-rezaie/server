@@ -1,7 +1,7 @@
 import { Role, User } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import prisma from "../../../prisma/prisma";
+import db from "../../../prisma/prisma";
 
 export type RefreshTkPayload = {
 	role: Role;
@@ -29,7 +29,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 	}
 
 	try {
-		const session = await prisma.session.create({
+		const session = await db.session.create({
 			data: { user: { connect: { id: userId } }, loginTime: new Date() },
 			select: { id: true },
 		});
@@ -50,7 +50,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 				// Clean the session created previously
 				if (err || !process.env.JWT_ACCESS_SECRET) {
 					console.error(err);
-					return prisma.session
+					return db.session
 						.delete({ where: { id: session.id }, select: null })
 						.then(() => {
 							res.status(500).json({ message: "InternalServerError" });
@@ -70,7 +70,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 					},
 					(err, accessToken) => {
 						if (err) {
-							return prisma.session
+							return db.session
 								.delete({
 									where: { id: session.id },
 									select: null,

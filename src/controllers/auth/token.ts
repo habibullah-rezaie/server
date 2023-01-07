@@ -1,7 +1,7 @@
 import { User } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import prisma from "../../../prisma/prisma";
+import db from "../../../prisma/prisma";
 import { removeAuthCookies } from "../../util/auth";
 import { AccessTkPayload, RefreshTkPayload } from "./login";
 

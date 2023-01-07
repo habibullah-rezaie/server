@@ -13,7 +13,7 @@ import {
 	AccessTkPayload,
 	RefreshTkPayload,
 } from "../../controllers/auth/login";
-import prisma from "./../../../prisma/prisma";
+import db from "./../../../prisma/prisma";
 
 // TODO:
 // Write some tests for these endpoints
@@ -29,7 +29,7 @@ const localStrategy = new LocalStrategy(
 			stack: null,
 		});
 
-		prisma.user
+		db.user
 			.findUnique({ where: { email } })
 			.then(async (usr) => {
 				if (!usr) {

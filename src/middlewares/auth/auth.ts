@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { parse } from "path";
-import prisma from "../../../prisma/prisma";
+import db from "../../../prisma/prisma";
 
 export async function parseSessionCookie(
 	req: Request,
@@ -12,7 +12,7 @@ export async function parseSessionCookie(
 	if (!sid) return next();
 
 	try {
-		const session = await prisma.session.findUnique({ where: { id: sid } });
+		const session = await db.session.findUnique({ where: { id: sid } });
 		if (!session) return next();
 
 		(req as any).session = session;

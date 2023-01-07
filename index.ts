@@ -3,8 +3,9 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import { request } from "http";
 import createError from "http-errors";
-import prisma from "./prisma/prisma";
+import db from "./prisma/prisma";
 import { authenticateAccessToken } from "./src/middlewares/auth/passportAuth";
 import authRoutes from "./src/routes/auth";
 
@@ -37,13 +38,13 @@ app.listen(port, async () => {
 	console.log("Server is running at port " + port);
 
 	try {
-		const usr = await prisma.user.findUnique({
+		const usr = await db.user.findUnique({
 			where: { email: "habibullah.rezaie.8@gmail.com" },
 		});
 
 		if (!usr) {
 			const hashedPasswd = await bcrypt.hash("hi123456", 8);
-			const newUser = await prisma.user.create({
+			const newUser = await db.user.create({
 				data: {
 					email: "habibullah.rezaie.8@gmail.com",
 					password: hashedPasswd,
