@@ -167,7 +167,7 @@ function handlePassportAuth(req: ExRequest, res: ExResponse, next: ExNextFn) {
 	return (error: HttpError, user: User) => {
 		if (!error && user) {
 			req.user = user;
-			next();
+			return next();
 		}
 
 		if (!error) return;

@@ -3,11 +3,10 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
-import { request } from "http";
 import createError from "http-errors";
 import db from "./prisma/prisma";
 import { authenticateAccessToken } from "./src/middlewares/auth/passportAuth";
-import authRoutes from "./src/routes/auth";
+import configureRoutes from "./src/routes";
 
 const app = express();
 
@@ -32,7 +31,7 @@ app.get("/", authenticateAccessToken, (req, res, next) => {
 	return res.status(200).json(req.user);
 });
 
-app.use(authRoutes);
+configureRoutes(app);
 
 app.listen(port, async () => {
 	console.log("Server is running at port " + port);
