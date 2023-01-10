@@ -1,5 +1,5 @@
 import { Role, User } from "@prisma/client";
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import db from "../../../prisma/prisma";
 
@@ -11,12 +11,12 @@ export type RefreshTkPayload = {
 
 export type AccessTkPayload = Omit<RefreshTkPayload, "sid">;
 
-const login = async (req: Request, res: Response, next: NextFunction) => {
+const login = async (req: Request, res: Response) => {
 	if (!req.user) {
 		return res.status(500).json({ message: "InternalServerError" });
 	}
 
-	const { role, name, id: userId } = req.user as User;
+	const { role, id: userId } = req.user as User;
 
 	if (!userId || !role) {
 		console.error("Something has went wrong, email or role is in `req.user`");
