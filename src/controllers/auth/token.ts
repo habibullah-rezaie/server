@@ -1,11 +1,12 @@
-import { User } from "@prisma/client";
+import { Session } from "@prisma/client";
+import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import db from "../../../prisma/prisma";
 import { removeAuthCookies } from "../../util/auth";
 import { AccessTkPayload, RefreshTkPayload } from "./login";
 
-	if (!(req as any).session) {
 const createToken = async (req: Request, res: Response) => {
+	const session = (req as { session?: Session }).session;
+	if (!session || session.logoutTime) {
 		return removeAuthCookies(res)
 			.status(401)
 			.json({ message: "Session expired" });
@@ -18,7 +19,6 @@ const createToken = async (req: Request, res: Response) => {
 	// added an sid when athenticating with refreshToken
 	const reqUser = req.user as RefreshTkPayload;
 
-	console.log(req.user);
 	if (!reqUser.userId || !reqUser.role) {
 		console.error("Something has went wrong, email or role is in `req.user`");
 		res.status(500).json({ message: "InternalServerError" });
@@ -33,6 +33,7 @@ const createToken = async (req: Request, res: Response) => {
 		role: reqUser.role,
 		userId: reqUser.userId,
 	};
+
 	return jwt.sign(
 		tokenPayload,
 		process.env.JWT_ACCESS_SECRET,
