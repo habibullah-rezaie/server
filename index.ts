@@ -1,11 +1,9 @@
-import bcrypt from "bcrypt";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
-import createError from "http-errors";
 import db from "./prisma/prisma";
-import { authenticateAccessToken } from "./src/middlewares/auth/passportAuth";
+import { seedDb } from "./prisma/seed";
 import configureRoutes from "./src/routes";
 
 const app = express();
