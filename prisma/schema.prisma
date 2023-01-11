@@ -14,6 +14,8 @@ model User {
   password String
   role     Role
   Session  Session[]
+  Sell     Sell[]
+  Payment  Payment[]
 }
 
 model Session {
@@ -22,6 +24,101 @@ model Session {
   logoutTime DateTime?
   loginTime  DateTime
   user       User      @relation(fields: [userId], references: [id])
+}
+
+model Customer {
+  id          String    @id @default(uuid())
+  name        String
+  address     String?
+  phoneNumber String?
+  Sell        Sell[]
+  Payment     Payment[]
+  Billing     Billing[]
+
+  @@unique([name, address, phoneNumber])
+}
+
+model Item {
+  name        String       @id
+  description String?
+  company     Company      @relation(fields: [companyName], references: [name])
+  companyName String
+  Purchase    Purchase[]
+  ItemOfSell  ItemOfSell[]
+}
+
+model Company {
+  name        String  @id
+  description String?
+  Item        Item[]
+}
+
+model Purchase {
+  id            String    @id @default(uuid())
+  item          Item      @relation(fields: [itemName], references: [name])
+  invoiceNumber String
+  itemName      String
+  price         Int
+  registerDate  DateTime  @default(now())
+  finishDate    DateTime?
+  totalCount    Int
+  inStockCount  Int
+
+  @@unique([itemName, invoiceNumber])
+}
+
+model Sell {
+  id            String          @id @default(uuid())
+  user          User            @relation(fields: [userId], references: [id])
+  userId        String
+  date          DateTime        @default(now())
+  ItemOfSell    ItemOfSell[]
+  PaymentOfSell PaymentOfSell[]
+  BillingInfo   Billing?
+  Customer      Customer?       @relation(fields: [customerId], references: [id])
+  customerId    String?
+}
+
+model Billing {
+  invoice    Int      @id @default(autoincrement())
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String
+  sell       Sell     @relation(fields: [sellId], references: [id])
+  sellId     String   @unique
+}
+
+model ItemOfSell {
+  id       String @id @default(uuid())
+  sell     Sell   @relation(fields: [sellId], references: [id])
+  sellId   String
+  item     Item   @relation(fields: [itemName], references: [name])
+  itemName String
+  price    Int
+  count    Int
+
+  @@unique([sellId, itemName])
+}
+
+model Payment {
+  id            String          @id @default(uuid())
+  customer      Customer?       @relation(fields: [customerId], references: [id])
+  customerId    String?
+  user          User            @relation(fields: [userId], references: [id])
+  userId        String
+  amount        Int
+  description   String?
+  PaymentOfSell PaymentOfSell[]
+}
+
+model PaymentOfSell {
+  id        String  @id @default(uuid())
+  sell      Sell    @relation(fields: [sellId], references: [id])
+  sellId    String
+  payment   Payment @relation(fields: [paymentId], references: [id])
+  paymentId String
+  amount    Int
+
+  @@unique([sellId, paymentId])
 }
 
 enum Role {
