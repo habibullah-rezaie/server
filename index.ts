@@ -22,13 +22,6 @@ app.use(express.json());
 app.use(helmet({ crossOriginEmbedderPolicy: false }));
 // TODO:  ADD morgan
 
-app.get("/", authenticateAccessToken, (req, res, next) => {
-	if (!req.user) {
-		return next(createError(400, "AUTHENTICATION NOT WORKED"));
-	}
-	return res.status(200).json(req.user);
-});
-
 configureRoutes(app);
 
 app.listen(port, async () => {
