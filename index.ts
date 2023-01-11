@@ -36,26 +36,8 @@ configureRoutes(app);
 app.listen(port, async () => {
 	console.log("Server is running at port " + port);
 
-	try {
-		const usr = await db.user.findUnique({
-			where: { email: "habibullah.rezaie.8@gmail.com" },
-		});
-
-		if (!usr) {
-			const hashedPasswd = await bcrypt.hash("hi123456", 8);
-			const newUser = await db.user.create({
-				data: {
-					email: "habibullah.rezaie.8@gmail.com",
-					password: hashedPasswd,
-					name: "Habibullah Rezaie",
-					role: "ADMIN",
-				},
-			});
-			console.log("Created FIRST USER;", newUser);
-		} else {
-			console.log("Already user exists", usr);
-		}
-	} catch (err) {
-		console.log("Error seeding database");
-	}
+	seedDb().catch((err) => {
+		console.error(err);
+		db.$disconnect();
+	});
 });
