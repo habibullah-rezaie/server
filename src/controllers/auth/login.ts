@@ -44,7 +44,7 @@ const login = async (req: Request, res: Response) => {
 			process.env.JWT_REFRESH_SECRET,
 			{
 				algorithm: "HS256",
-				expiresIn: "1d",
+				expiresIn: "12h",
 			},
 			(err, refreshToken) => {
 				// Clean the session created previously
@@ -80,8 +80,8 @@ const login = async (req: Request, res: Response) => {
 								});
 						}
 
-						// session expires in 1 day
-						const sessionExpDate = new Date(Date.now() + 86400 * 1000);
+						// session expires in 12 hours
+						const sessionExpDate = new Date(Date.now() + 43200 * 1000);
 						return res
 							.cookie("refreshToken", refreshToken, {
 								expires: sessionExpDate,
