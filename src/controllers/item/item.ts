@@ -43,3 +43,43 @@ export function createItem(req: Request, res: Response) {
 			return res.status(500).json({ message: "خطای غیر منتظره رخ داده است" });
 		});
 }
+
+export function addItemToStock(req: Request, res: Response) {
+	const {
+		price,
+		count,
+		billNumber,
+	}: {
+		price: number;
+		count: number;
+		billNumber: string;
+	} = req.body;
+
+	const {
+		itemName,
+	}: {
+		itemName?: string;
+	} = req.params;
+
+	console.log("ITEMNAME________________", itemName);
+	db.purchase
+		.create({
+			data: {
+				item: {
+					connect: { name: itemName },
+				},
+				inStockCount: count,
+				price,
+				invoiceNumber: billNumber,
+				totalCount: count,
+			},
+			include: {
+				item: true,
+			},
+		})
+		.then((result) => res.status(200).json(result))
+		.catch((err) => {
+			console.error(err);
+			return res.status(500).json({ message: "خطای غیر منتظره رخ داده است" });
+		});
+}

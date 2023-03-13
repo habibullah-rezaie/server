@@ -13,9 +13,9 @@ model User {
   name     String
   password String
   role     Role
-  Session  Session[]
-  Sell     Sell[]
   Payment  Payment[]
+  Sell     Sell[]
+  Session  Session[]
 }
 
 model Session {
@@ -31,9 +31,9 @@ model Customer {
   name        String
   address     String?
   phoneNumber String?
-  Sell        Sell[]
-  Payment     Payment[]
   Billing     Billing[]
+  Payment     Payment[]
+  Sell        Sell[]
 
   @@unique([name, address, phoneNumber])
 }
@@ -41,10 +41,10 @@ model Customer {
 model Item {
   name        String       @id
   description String?
-  company     Company      @relation(fields: [companyName], references: [name])
   companyName String
-  Purchase    Purchase[]
+  company     Company      @relation(fields: [companyName], references: [name])
   ItemOfSell  ItemOfSell[]
+  Purchase    Purchase[]
 }
 
 model Company {
@@ -55,7 +55,6 @@ model Company {
 
 model Purchase {
   id            String    @id @default(uuid())
-  item          Item      @relation(fields: [itemName], references: [name])
   invoiceNumber String
   itemName      String
   price         Int
@@ -63,60 +62,62 @@ model Purchase {
   finishDate    DateTime?
   totalCount    Int
   inStockCount  Int
+  updatedAt     DateTime  @updatedAt
+  item          Item      @relation(fields: [itemName], references: [name])
 
   @@unique([itemName, invoiceNumber])
 }
 
 model Sell {
   id            String          @id @default(uuid())
-  user          User            @relation(fields: [userId], references: [id])
   userId        String
   date          DateTime        @default(now())
+  customerId    String?
+  BillingInfo   Billing?
   ItemOfSell    ItemOfSell[]
   PaymentOfSell PaymentOfSell[]
-  BillingInfo   Billing?
   Customer      Customer?       @relation(fields: [customerId], references: [id])
-  customerId    String?
+  user          User            @relation(fields: [userId], references: [id])
 }
 
 model Billing {
   invoice    Int      @id @default(autoincrement())
-  customer   Customer @relation(fields: [customerId], references: [id])
   customerId String
-  sell       Sell     @relation(fields: [sellId], references: [id])
   sellId     String   @unique
+  customer   Customer @relation(fields: [customerId], references: [id])
+  sell       Sell     @relation(fields: [sellId], references: [id])
 }
 
 model ItemOfSell {
   id       String @id @default(uuid())
-  sell     Sell   @relation(fields: [sellId], references: [id])
   sellId   String
-  item     Item   @relation(fields: [itemName], references: [name])
   itemName String
   price    Int
   count    Int
+  item     Item   @relation(fields: [itemName], references: [name])
+  sell     Sell   @relation(fields: [sellId], references: [id])
 
   @@unique([sellId, itemName])
 }
 
 model Payment {
   id            String          @id @default(uuid())
-  customer      Customer?       @relation(fields: [customerId], references: [id])
   customerId    String?
-  user          User            @relation(fields: [userId], references: [id])
   userId        String
   amount        Int
   description   String?
+  customer      Customer?       @relation(fields: [customerId], references: [id])
+  user          User            @relation(fields: [userId], references: [id])
   PaymentOfSell PaymentOfSell[]
 }
 
 model PaymentOfSell {
   id        String  @id @default(uuid())
-  sell      Sell    @relation(fields: [sellId], references: [id])
   sellId    String
-  payment   Payment @relation(fields: [paymentId], references: [id])
   paymentId String
   amount    Int
+  payment   Payment @relation(fields: [paymentId], references: [id])
+  sell      Sell    @relation(fields: [sellId], references: [id])
 
   @@unique([sellId, paymentId])
 }
